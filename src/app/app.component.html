@@ -3,12 +3,13 @@
       Name:
     <input type="text" formControlName="name"><br>
     <p class="worn" *ngIf="profileForm.controls.name.hasError('required') && !profileForm.get('name').pristine">*Name is required</p>
-    <!-- <p class="worn" *ngIf="profileForm.get('name').hasError('invalidName') && !profileForm.get('name').pristine"> *Name is Invalid  </p> -->
-
-    </label>
+    <p class="worn" *ngIf="profileForm.get('name').errors?.pattern"> *Name should be letters only</p>
+  
+  </label>
     <label>Email:
       <input type="text" formControlName="email"><br>
       <p class="worn" *ngIf="profileForm.controls.email.hasError('required') && !profileForm.get('email').pristine">*Email is required</p>
+      <p class="worn" *ngIf="profileForm.get('email').errors.pattern">*Email should be in this form "example@gmail.com"</p>
     </label>
 
     <label>Gender:<br>
@@ -23,8 +24,10 @@
     <label>Mobile:
       <input type="text" formControlName="mobile"><br>
       <p class="worn" *ngIf="profileForm.controls.mobile.hasError('required') && !profileForm.get('mobile').pristine">*mobile is required</p>
+      <p class="worn" *ngIf="profileForm.get('mobile').errors?.phoneNumberInvalid"> *mobile should consest of numbers only</p>
+      <p class="worn" *ngIf="profileForm.get('mobile').errors?.lengthInvalid"> *mobile length should be 10</p>
     </label>
-    <img src="profileForm.controls.img.value">{{profileForm.controls.img.value}}
+    <div class="image"></div>
     <label>img:
       <input type="file" formControlName="img"><br>
       <p class="worn" *ngIf="profileForm.controls.img.hasError('required') && !profileForm.get('img').pristine">*image is required</p>
