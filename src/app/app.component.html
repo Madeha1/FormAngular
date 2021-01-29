@@ -8,7 +8,8 @@
     <label>Email:
   <input type="text" formControlName="email"><br>
     <p class="worn" *ngIf="f.email.hasError('required')">*Email is required</p>
-    <p class="worn" *ngIf="profileForm.get('email').errors?.email">*Email should be in this form "example@gmail.com"</p>
+    <p class="worn" *ngIf="profileForm.get('email').errors?.email">*Invalid email address</p>
+    <p class="worn" *ngIf="!unique && submitted">*This email is already used</p>
 </label>
 
     <label>Gender:<br>

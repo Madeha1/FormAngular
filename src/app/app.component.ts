@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { AbstractControl, FormControl} from '@angular/forms';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-
+import { EmailService } from '../app/email.service' 
 
 @Component({
   selector: 'app-root',
@@ -9,11 +9,14 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
+
+  constructor(private formBuilder: FormBuilder , private emailService : EmailService ) { }
+
   profileForm: FormGroup;
   title = 'forms';
+  unique = false;
   submitted = false;
   imageUrl;
-  constructor(private formBuilder: FormBuilder) { }
   ngOnInit() {
     this.profileForm = this.formBuilder.group({
     name : new FormControl('', [Validators.required , Validators.pattern('[a-zA-Z]+')]),
@@ -25,20 +28,34 @@ export class AppComponent {
     confirmPassword: new FormControl('', [Validators.required]),
     },
     { 
-      validators: this.checkPasswords
+      validators: this.checkPasswords 
     });
   }
-//dummy data for the service
-invalidNamesArr: string[] = ['test@email.com' , 'admin@email.com'];
-//Validators.pattern(/^(?=[^A-Z]*[A-Z])(?=[^a-z]*[a-z])(?=\D*\d).{8,}$/)
   onSubmit(){
     this.submitted = true;
+    let email = this.profileForm.value.email;
+    if(!this.emailService.valid(email)){
+      this.unique = true;
+      if(this.profileForm.valid){
+        console.log("submitted Successfuly");
+      }
+    } else {
+      this.unique = false;
+    }
     // stop here if form is invalid
     if (this.profileForm.invalid) {
+      console.log("Wrong");
         return;
     }    
   }
+  
   get f() { return this.profileForm.controls; }
+
+  checkEmail(group: FormGroup) { // here we have the 'passwords' group
+  const password = group.get('password').value;
+  const confirmPassword = group.get('confirmPassword').value;
+  return password === confirmPassword ? null : { notSame: true }     
+}
 
   ValidateMobile(control: AbstractControl): {[key: string]: any} | null  {
     if (!control.value.match(/^[0-9]*$/)) {
@@ -58,22 +75,31 @@ invalidNamesArr: string[] = ['test@email.com' , 'admin@email.com'];
       'specialCharMissing':false,
       'lengthInvalid': false
     };
+    var count = 0;
     if (!(control.value.match(/^(?=[^A-Z]*[A-Z]).{1,}$/))) {
       validations['capitalMissing']=true;
+      count++;
     }
     if (!(control.value.match(/^(?=[^a-z]*[a-z]).{1,}$/))) {
       validations['smallMissing']=true;
+      count++;
     }
     if (!(control.value.match(/^(?=[^0-9]*[0-9]).{1,}$/))) {
-      validations['numberMissing']=true;
+      validations['numberMissing']=true;   
+      count++;
+
     }
     if (!(control.value.match(/^(?=[^!@#\$%\^\&*\)\(+=._-]*[!@#\$%\^\&*\)\(+=._-]).{1,}$/))) {
       validations['specialCharMissing']=true;
+      count++;
     }
     if (control.value.length > 12 || control.value.length <6 ) {
       validations['lengthInvalid']=true;
+      count++;
     }
-    return validations;
+    if(count > 0)
+      return validations;
+    return null;
   }
 
   checkPasswords(group: FormGroup) { // here we have the 'passwords' group
